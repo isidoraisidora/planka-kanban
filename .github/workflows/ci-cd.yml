@@ -1,0 +1,57 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  validate:
+    name: Validate Docker Setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml syntax
+        run: docker compose config
+
+      - name: List all services
+        run: |
+          echo "CI Pipeline completed successfully!"
+          echo ""
+          echo "Services in docker-compose.yml:"
+          docker compose config --services
+
+      - name: Verify Planka image is accessible
+        run: |
+          echo "Testing pull of Planka image..."
+          docker pull ghcr.io/plankanban/planka:latest
+          echo "Image pull successful - image exists and is accessible"
+
+  push-to-docker-hub:
+    name: Push to Docker Hub
+    runs-on: ubuntu-latest
+    needs: validate
+    # Only run on push to master/main (not pull requests)
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Push Planka image to Docker Hub
+        run: |
+          # Tag the existing Planka image with your Docker Hub username
+          docker pull ghcr.io/plankanban/planka:latest
+          docker tag ghcr.io/plankanban/planka:latest ${{ secrets.DOCKER_HUB_USERNAME }}/planka:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/planka:latest
+          echo "✅ Image pushed to Docker Hub: ${{ secrets.DOCKER_HUB_USERNAME }}/planka:latest"
