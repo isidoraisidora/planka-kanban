@@ -35,7 +35,6 @@ jobs:
     name: Push to Docker Hub
     runs-on: ubuntu-latest
     needs: validate
-    # Only run on push to master/main (not pull requests)
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
 
     steps:
@@ -46,12 +45,11 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          password: ${{ gsecrets.DOCKER_HUB_TOKEN }}
 
       - name: Push Planka image to Docker Hub
         run: |
-          # Tag the existing Planka image with your Docker Hub username
           docker pull ghcr.io/plankanban/planka:latest
           docker tag ghcr.io/plankanban/planka:latest ${{ secrets.DOCKER_HUB_USERNAME }}/planka:latest
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/planka:latest
-          echo "✅ Image pushed to Docker Hub: ${{ secrets.DOCKER_HUB_USERNAME }}/planka:latest"
+          echo "Image pushed to Docker Hub: ${{ secrets.DOCKER_HUB_USERNAME }}/planka:latest"
