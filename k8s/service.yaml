@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: planka-service
+  namespace: planka-system
+spec:
+  selector:
+    app: planka
+  ports:
+    - port: 1337
+      targetPort: 1337
+      protocol: TCP
+      name: http
+  type: ClusterIP
+---
+# Optional: LoadBalancer for external access (if not using Ingress)
+apiVersion: v1
+kind: Service
+metadata:
+  name: planka-lb
+  namespace: planka-system
+spec:
+  selector:
+    app: planka
+  ports:
+    - port: 3000
+      targetPort: 1337
+      protocol: TCP
+  type: LoadBalancer

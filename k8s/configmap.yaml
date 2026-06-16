@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: planka-config
+  namespace: planka-system
+data:
+  BASE_URL: "http://localhost:3000"
+  DATABASE_URL: "postgresql://postgres:password123@postgres-service:5432/planka"
+  # Redis is optional but included
+  REDIS_URL: "redis://redis-service:6379"

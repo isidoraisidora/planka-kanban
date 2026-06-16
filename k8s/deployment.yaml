@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planka-deployment
+  namespace: planka-system
+  labels:
+    app: planka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: planka
+  template:
+    metadata:
+      labels:
+        app: planka
+    spec:
+      containers:
+        - name: planka
+          image: ghcr.io/plankanban/planka:latest
+          ports:
+            - containerPort: 1337
+              name: http
+          envFrom:
+            - configMapRef:
+                name: planka-config
+            - secretRef:
+                name: planka-secrets
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 1337
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 1337
+            initialDelaySeconds: 5
+            periodSeconds: 5
