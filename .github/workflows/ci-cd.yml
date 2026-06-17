@@ -31,6 +31,10 @@ jobs:
           docker pull ghcr.io/plankanban/planka:latest
           echo "Image pull successful - image exists and is accessible"
 
+      - name: Deploy to Render
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+
   push-to-docker-hub:
     name: Push to Docker Hub
     runs-on: ubuntu-latest
@@ -55,3 +59,4 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/planka:latest
+
