@@ -1,62 +1,49 @@
 name: CI/CD Pipeline
-
 on:
   push:
     branches: [ master, main ]
   pull_request:
     branches: [ master, main ]
-
 jobs:
   validate:
     name: Validate Docker Setup
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Validate docker-compose.yml syntax
         run: docker compose config
-
       - name: List all services
         run: |
           echo "CI Pipeline completed successfully!"
           echo ""
           echo "Services in docker-compose.yml:"
           docker compose config --services
-
       - name: Verify Planka image is accessible
         run: |
           echo "Testing pull of Planka image..."
           docker pull ghcr.io/plankanban/planka:latest
           echo "Image pull successful - image exists and is accessible"
-
-      - name: Deploy to Render
-        run: |
-          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
-
   push-to-docker-hub:
     name: Push to Docker Hub
     runs-on: ubuntu-latest
     needs: validate
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/planka:latest
-
+      - name: Deploy to Render
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
