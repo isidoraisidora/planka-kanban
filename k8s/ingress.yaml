@@ -6,8 +6,9 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
-    - host: planka-latest-hqy2.onrender.com
+    - host: planka.local
       http:
         paths:
           - path: /
