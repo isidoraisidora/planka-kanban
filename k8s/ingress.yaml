@@ -3,8 +3,6 @@ kind: Ingress
 metadata:
   name: planka-ingress
   namespace: planka-system
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
